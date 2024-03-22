@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text Scanner</title>
+</head>
+<body>
+
+<h1>Security Header Scanner</h1>
+
+<form id="scanForm">
+  <label for="textInput">Enter URL:</label><br>
+  <input type="text" id="textInput" name="textInput"><br>
+  <button type="button" id="scanText">Scan</button>
+
+    <h2 class="result_value common-none">Security Headers:</h2>
+    <textarea class="result_value common-none" id="sechead" rows="5" cols="70"></textarea><br><br>
+
+    <h2 class="result_value common-none">Missing Security Headers:</h2>
+    <textarea class="result_value common-none" id="missing_sec" rows="5" cols="70"></textarea><br><br>
+
+    <h2 class="result_value common-none">Directory listing:</h2>
+    <textarea class="result_value common-none" id="listing" rows="5" cols="70"></textarea><br><br>
+
+</form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="{{url_for('static', filename='scripts/scan.js')}}"></script>
+<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+</body>
+</html>
