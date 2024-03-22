@@ -1,9 +1,7 @@
-# blueprint.py
-from flask import Blueprint, render_template, request, jsonify
-
 # Third Party imports
 import requests
 from bs4 import BeautifulSoup
+from flask import Blueprint, render_template, request, jsonify
 
 # Define a blueprint
 search_page = Blueprint('search_page', __name__)
@@ -13,6 +11,8 @@ search_page = Blueprint('search_page', __name__)
 def index():
     return render_template('user.html')
 
+
+# data request route
 @search_page.route('/url_scan', methods=['POST'])
 def scan_validation():
     value_received = request.form['value']
@@ -53,6 +53,7 @@ COMMON_SECURITY_HEADERS = [
 ]
 
 
+# scan_security_headers for url
 def scan_security_headers(url):
     try:
         response = requests.head(url)
@@ -65,6 +66,7 @@ def scan_security_headers(url):
         return {"Error" : "Unable to scan_security_headers"}
 
 
+# missing headers
 def find_missing_headers(headers_missing):
     missing_header_data = []
     for header_find in COMMON_SECURITY_HEADERS:
@@ -72,6 +74,8 @@ def find_missing_headers(headers_missing):
             missing_header_data.append(header_find)
     return missing_header_data
 
+
+# directory listing function
 def get_directory_listing(url_given):
     try:
         response = requests.get(url_given)
