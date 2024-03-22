@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Text Scanner</title>
+<title>URL Scanner</title>
+<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
 </head>
 <body>
 
@@ -23,9 +24,12 @@
     <h2 class="result_value common-none">Directory listing:</h2>
     <textarea class="result_value common-none" id="listing" rows="5" cols="70"></textarea><br><br>
 
+  <h2 class="result_value common-none">Website Information:</h2>
+    <textarea class="result_value common-none" id="webinfo" rows="5" cols="70"></textarea><br><br>
+
 </form>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="{{url_for('static', filename='scripts/scan.js')}}"></script>
-<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+
 </body>
 </html>
