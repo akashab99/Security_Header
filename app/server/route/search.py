@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from flask import Blueprint, render_template, request, jsonify
 import builtwith
 import whois
+import urllib.parse
 
 # Define a blueprint
 search_page = Blueprint('search_page', __name__)
@@ -21,31 +22,26 @@ def scan_validation():
     url_input = value_received
     headers = scan_security_headers(url_input)
     print(headers)
-    # for header, value in headers.items():
-    #     print(f"{header}: {value}")
-
     missing_headers = find_missing_headers(headers)
     if missing_headers:
         print(missing_headers)
         missing_headers_value = missing_headers
-        # for header in missing_headers:
-        #     print(header)
     else:
         missing_headers_value = ["All common security headers are present."]
         print("\nAll common security headers are present.")
 
     # Directory Listing
     directory_listing_value = []
-    common_directories = ["admin", "uploads", "images", "css", "js"]
-    for directory in common_directories:
-        directory_data = get_directory_listing(url_input, directory)
-        if directory_data:
-            print(f"Data retrieved from directory '{directory}':")
-            directory_listing_value.append(str(directory_data.decode("utf-8")))
-        else:
-            print(f"Directory '{directory}' does not exist.")
-            directory_listing_value.append(f"Directory '{directory}' does not exist.")
+    src_directories = find_src_directories(url_input)
+    if src_directories:
+        print("Src directories found:")
+        for directory in src_directories:
+            client_logo_without_slash = remove_slash(directory)
+            print(client_logo_without_slash)
+            final_out = find_directory_status(f"{url_input}{directory}")
+            directory_listing_value.append(f"{directory} : {final_out[0]} : {final_out[1]} ")
 
+    # Website information
     website_information = get_website_info(url_input)
     return jsonify({"data_value1": headers, "data_value2": missing_headers_value, "data_value3": directory_listing_value , "data_value4" : website_information})
 
@@ -83,17 +79,49 @@ def find_missing_headers(headers_missing):
     return missing_header_data
 
 
-# directory listing function
-def get_directory_listing(url_given, directory):
-    try:
-        target_url = f"{url_given}/{directory}"
-        response = requests.get(target_url)
-        if response.status_code == 200:
-            return response.content
-        else:
-            return None
-    except Exception as e:
-        print(f"An error occurred: {e}")
+# Directory listing function
+def find_src_directories(url):
+    # Send a GET request to the URL
+    response = requests.get(url)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        # Parse the HTML content
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Find all 'src' attributes in the HTML
+        src_directories = set()
+        for tag in soup.find_all(src=True):
+            src = tag['src']
+            # Extract directory part of the URL
+            src_directory = urllib.parse.urlparse(src).path.rsplit('/', 1)[0]
+            src_directories.add(src_directory)
+
+        return src_directories
+    else:
+        print("Failed to retrieve the webpage.")
+        return None
+
+# Directory Status
+def find_directory_status(url):
+    # Send a GET request to the URL
+    response = requests.get(url)
+    # Check if the request was successful
+    if response.status_code == 200:
+        return ["Open", response.text]
+    elif response.status_code == 403:
+        return ["Forbidden", "response_code=403"]
+    elif response.status_code == 404:
+        return ["Forbidden", "response_code=404"]
+    else:
+        return ["NOT FOUND", "Response Not Found"]
+
+# Remove Slash
+def remove_slash(client_logo):
+    if "/" in client_logo:
+        client_logo = client_logo.replace("/", "")
+    return client_logo
+
 
 def get_website_info(url):
     try:
@@ -104,6 +132,7 @@ def get_website_info(url):
             tech_info = builtwith.parse(url)
             print("Technologies used:")
             web_info = []
+            print(tech_info)
             for key, value in tech_info.items():
                 web_info.append(f"{key}: {value}")
 
